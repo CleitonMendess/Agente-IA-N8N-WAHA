@@ -1,0 +1,170 @@
+{
+  "name": "Teste DIX",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        800,
+        336
+      ],
+      "id": "0283b26d-0d6a-4277-b6dc-f946e685f3aa",
+      "name": "WhatsApp Trigger",
+      "webhookId": "7372044c-91ed-4b4f-a1be-ff3866ef67f0",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "YgKo4tdxGrj9dehK",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=Receptivo Inicial: Ao receber a primeira mensagem, o agente deve iniciar a conversa e coletar, em sequência, os seguintes dados:\n\nNome completo\n\nE-mail\n\nCPF ou CNPJ\n\nAssunto (Ex: Suporte Técnico, Financeiro, Dúvidas)\n\nRedirecionamento: Com base no \"Assunto\" informado:\n\nSe for Suporte Técnico, avance para o próximo passo.\n\nSe for qualquer outro assunto, informe que o atendimento será transferido para o setor responsável e finalize o fluxo.\n\nDetalhes do Suporte: Se o assunto for \"Suporte Técnico\", faça mais duas perguntas:\n\nQual é a ocorrência? (Ex: Erro no sistema, Lentidão, Dúvida sobre funcionalidade).\n\nPeça uma descrição detalhada do ocorrido.\n\nRespostas Automáticas (IA): Use IA para analisar a descrição do problema e fornecer respostas automáticas para as seguintes perguntas frequentes:\n\nDúvida sobre \"limpar o cache\": Forneça uma resposta com instruções de como limpar o cache do navegador.\n\nDúvida sobre \"abrir chamado\": Explique como abrir um chamado no Portal do Cliente DIX, fornecendo o link: https://atendimento.bis365.app/.\n\nSe não for uma dúvida comum: Informe ao cliente que a solicitação será registrada e analisada pela equipe técnica.",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        336
+      ],
+      "id": "25795f8d-2bfb-4db8-81ac-0d1092b3fcb1",
+      "name": "AI Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1168,
+        560
+      ],
+      "id": "62557ec3-e0fb-4fe8-80ce-a2158edbd85f",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        560
+      ],
+      "id": "0dfc4153-153a-4719-ae05-57390052c3c3",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "WEaVzfmouKy6at2e",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "816486554883805",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1376,
+        336
+      ],
+      "id": "291dd071-0836-4b0e-a060-fc02a0681c33",
+      "name": "Send message and wait for response",
+      "webhookId": "ef982adc-fb78-4f0e-b9de-609951ce0a66",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "Vn1sIWpnTKVpkYvG",
+          "name": "WhatsApp account"
+        }
+      },
+      "disabled": true,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "03feec8b-2196-4085-bbda-5158b6ab7736",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ee2235bf570d304366217ba23935811e9cfbcdc324ce32f9209180ba4e1bb749"
+  },
+  "id": "xDCWozGIe6HoP8Ro",
+  "tags": []
+}
