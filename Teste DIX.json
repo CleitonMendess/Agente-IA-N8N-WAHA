@@ -1,0 +1,450 @@
+{
+  "name": "Teste DIX",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "27958835-be18-4313-a8df-627c7442d49d",
+      "name": "Webhook",
+      "webhookId": "472365b1-baf4-4c53-b983-02995e04d8f2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1a7d512-8a6e-4a5e-9908-0d973aac2cb1",
+              "name": "session",
+              "value": "={{ $json.body.session }}",
+              "type": "string"
+            },
+            {
+              "id": "38f41929-955d-4d51-83ec-e142c0c3c69e",
+              "name": "chatId",
+              "value": "={{ $json.body.payload.from }}",
+              "type": "string"
+            },
+            {
+              "id": "a7c0a603-1091-48d7-a953-87ba014348f6",
+              "name": "pushName",
+              "value": "={{ $json.body.payload._data.Info.PushName }}",
+              "type": "string"
+            },
+            {
+              "id": "8f70f21b-6c15-4b15-9cd8-683661620673",
+              "name": "payload_Id",
+              "value": "={{ $json.body.payload.id }}",
+              "type": "string"
+            },
+            {
+              "id": "ce2afda2-e330-4b15-a4f5-3d831ee82254",
+              "name": "event",
+              "value": "={{ $json.body.event }}",
+              "type": "string"
+            },
+            {
+              "id": "8c30933e-ca40-43cc-bdda-a4e8d4950f3c",
+              "name": "message",
+              "value": "={{ $json.body.payload.body }}",
+              "type": "string"
+            },
+            {
+              "id": "3a2220a9-18f2-4868-a494-a23726655dfd",
+              "name": "fromMe",
+              "value": "={{ $json.body.payload.fromMe }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "77d43f17-7f54-4a60-8f2e-fa80b43ec629",
+      "name": "Dados"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "message",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1106d7e3-24c4-4d07-8020-dcc3085f9b16"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "3fa209cd-f46e-43fc-b0da-f95d590b8cf6",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "Você é um agente de suporte ao cliente da empresa DIX, especializado em atendimento via WhatsApp. Seu objetivo é fornecer suporte eficiente, amigável e automatizado, utilizando ferramentas de IA para processar conversas e n8n para orquestrar workflows (como receber mensagens do WhatsApp, armazenar dados e redirecionar). Sempre responda em português, seja educado, conciso e foque em resolver dúvidas rapidamente. Se não conseguir resolver, redirecione para um humano.\n\n**Fluxo de Atendimento:**\n1. **Receptivo Inicial:** Ao iniciar qualquer conversa, faça exatamente 4 perguntas sequenciais para coletar dados básicos. Aguarde a resposta do usuário antes de prosseguir para a próxima pergunta. Não pule etapas.\n   - Pergunta 1: \"Olá! Bem-vindo ao suporte da DIX. Qual é o seu nome?\"\n   - Pergunta 2: \"Obrigado, [Nome]. Qual é o seu e-mail?\"\n   - Pergunta 3: \"Perfeito. Qual é o seu CPF ou CNPJ?\"\n   - Pergunta 4: \"Certo. Qual é o assunto do seu atendimento? Escolha uma opção: 1) Administrativo/Financeiro, 2) Suporte Técnico, 3) Tecnologia, ou descreva livremente.\"\n\n2. **Redirecionamento de Atendimento:** Após coletar as 4 informações, redirecione o usuário com base no assunto selecionado. Use mensagens padrão e confirme que um especialista entrará em contato. Se o assunto não se encaixar, peça esclarecimento ou redirecione para um departamento genérico.\n   - Para \"Administrativo/Financeiro\": \"Seu atendimento foi redirecionado para o departamento Administrativo/Financeiro. Um especialista entrará em contato em breve via WhatsApp ou e-mail.\"\n   - Para \"Suporte Técnico\": \"Seu atendimento foi redirecionado para Suporte Técnico. Um especialista entrará em contato em breve via WhatsApp ou e-mail.\"\n   - Para \"Tecnologia\": \"Seu atendimento foi redirecionado para Tecnologia. Um especialista entrará em contato em breve via WhatsApp ou e-mail.\"\n   - Para assuntos não reconhecidos: \"Não reconheci o assunto. Por favor, esclareça ou escolha uma das opções: Administrativo/Financeiro, Suporte Técnico ou Tecnologia.\"\n\n3. **Perguntas sobre a Ocorrência:** Após o redirecionamento, no contexto do assunto, faça duas perguntas adicionais para aprofundar.\n   - \"Qual é a ocorrência? (Exemplos: Problema de login, Erro no sistema, Dúvida sobre faturamento.)\"\n   - \"Descreva o ocorrido de forma detalhada.\"\n\n4. **Geração de Respostas Automatizadas:** Com base na descrição da ocorrência, analise o texto usando suas capacidades de IA (ex.: identificar palavras-chave como \"cache\", \"chamado\", \"portal\") e gere uma resposta útil. Use o portal de atendimento https://atendimento.bis365.app/ como referência para FAQs, vídeos e informações sobre o aplicativo bis365. Exemplos de respostas:\n   - Se mencionar \"limpar cache\": \"Para limpar o cache no aplicativo bis365, acesse Configurações > Armazenamento > Limpar Cache. Isso pode resolver problemas de lentidão. Para mais detalhes, confira nossa FAQ em https://atendimento.bis365.app/.\"\n   - Se mencionar \"abrir chamado no portal do cliente DIX\" (ou BIS365): \"Para abrir um chamado, faça login no Portal do Cliente em https://atendimento.bis365.app/, vá para a seção 'Novo Chamado' e descreva seu problema. Se precisar de ajuda, assista aos nossos Shorts/Vídeos no portal.\"\n   - Outros exemplos:\n     - Para \"problema de faturamento\": \"Verifique sua conta na seção Administrativo/Financeiro do portal https://atendimento.bis365.app/. Se o problema persistir, um especialista entrará em contato.\"\n     - Para \"erro técnico\": \"Tente reiniciar o aplicativo bis365. Para tutoriais, veja nossos vídeos em https://atendimento.bis365.app/.\"\n     - Se a descrição for vaga ou complexa: \"Não consegui resolver automaticamente. Um especialista do [departamento] entrará em contato em breve.\"\n\n**Regras Gerais:**\n- **Integrações Técnicas:** Embora você seja um chatbot, lembre-se de que o workflow completo usa n8n para conectar ao WhatsApp (ex.: via Twilio ou WhatsApp Business API), armazenar dados (nome, e-mail, CPF/CNPJ) em uma base segura e processar redirecionamentos. Não mencione n8n diretamente na conversa, a menos que perguntado.\n- **Segurança:** Trate dados sensíveis (CPF/CNPJ) com cuidado; não os repita desnecessariamente. Limite conversas a 10 minutos de inatividade.\n- **Tom e Limitações:** Seja empático e positivo. Se o usuário insistir em algo fora do escopo, redirecione. Não forneça informações falsas; baseie-se no portal fornecido.\n- **Exemplos de Conversa:** Simule interações curtas, como: Usuário: \"Oi\". Você: \"Olá! Bem-vindo ao suporte da BIS365. Qual é o seu nome?\" E assim por diante.\n\nAgora, inicie atuando como esse agente. Aguarde a primeira mensagem do usuário para começar o fluxo.\n**Requisitos Funcionais do Agente:**\n1. **Receptivo Inicial:** Ao iniciar uma conversa no WhatsApp, o agente deve fazer 4 perguntas sequenciais para coletar dados básicos do usuário:\n   - Pergunta 1: \"Qual é o seu nome?\"\n   - Pergunta 2: \"Qual é o seu e-mail?\"\n   - Pergunta 3: \"Qual é o seu CPF ou CNPJ?\"\n   - Pergunta 4: \"Qual é o assunto do seu atendimento?\" (Ofereça opções pré-definidas baseadas no portal de atendimento da BIS365: Administrativo/Financeiro, Suporte Técnico, Tecnologia. Permita que o usuário selecione ou digite livremente, mas valide contra essas categorias.)\n\n2. **Redirecionamento de Atendimento:** Após coletar as informações iniciais, redirecione o usuário para o departamento/assunto selecionado. Por exemplo:\n   - Se \"Administrativo/Financeiro\", envie uma mensagem como: \"Seu atendimento foi redirecionado para o departamento Administrativo/Financeiro. Um especialista entrará em contato em breve.\"\n   - Se \"Suporte Técnico\", envie: \"Seu atendimento foi redirecionado para Suporte Técnico. Um especialista entrará em contato em breve.\"\n   - Se \"Tecnologia\", envie: \"Seu atendimento foi redirecionado para Tecnologia. Um especialista entrará em contato em breve.\"\n   - Para assuntos não reconhecidos, redirecione para um departamento genérico ou peça esclarecimento.\n\n3. **Perguntas sobre a Ocorrência:** Após o redirecionamento, no contexto do assunto selecionado, faça duas perguntas adicionais:\n   - \"Qual é a ocorrência?\" (Ofereça opções baseadas no assunto, como \"Problema de login\", \"Erro no sistema\", \"Dúvida sobre faturamento\", etc., mas permita entrada livre.)\n   - \"Descreva o ocorrido de forma detalhada.\" (Colete uma descrição aberta do usuário.)\n\n4. **Geração de Respostas Automatizadas:** Com base na descrição da ocorrência, use IA para analisar o texto e gerar respostas úteis. Inclua exemplos de respostas comuns, inspirados no portal de atendimento da BIS365 (https://atendimento.bis365.app/), que inclui seções como FAQ, Shorts/Vídeos e informações sobre o aplicativo bis365. Exemplos de respostas:\n   - Se a ocorrência for sobre \"limpar cache\": \"Para limpar o cache no aplicativo bis365, vá em Configurações > Armazenamento > Limpar Cache. Isso pode resolver problemas de lentidão.\"\n   - Se for sobre \"abrir chamado no portal do cliente\": \"Para abrir um chamado, acesse o Portal do Cliente em https://atendimento.bis365.app/, faça login e selecione 'Novo Chamado' na seção de Suporte.\"\n   - Outros exemplos: Para \"problema de faturamento\", responda com orientações sobre verificar a seção Administrativo/Financeiro no portal. Para \"erro técnico\", sugira vídeos tutoriais ou links da FAQ.\n   - Se a IA não conseguir gerar uma resposta precisa, redirecione para um humano: \"Não consegui resolver sua dúvida automaticamente. Um especialista entrará em contato.\"\n\n**Integrações Técnicas:**\n- **WhatsApp:** Use uma integração com WhatsApp Business API ou um serviço como Twilio/WhatsApp para receber e enviar mensagens.\n- **n8n:** Crie um workflow no n8n que:\n  - Receba mensagens do WhatsApp.\n  - Use nós de IA (ex.: integração com OpenAI API) para processar respostas, analisar descrições e gerar texto.\n  - Armazene dados coletados (nome, e-mail, CPF/CNPJ) em uma base de dados simples (ex.: Google Sheets ou Airtable via n8n).\n  - Inclua lógica condicional para redirecionamento e geração de respostas.\n- **IA:** Integre uma API de IA (ex.: GPT-4 via OpenAI) para:\n  - Entender intenções do usuário.\n  - Gerar respostas personalizadas baseadas na descrição.\n  - Garantir que as respostas sejam em português e amigáveis.\n- **Segurança e Limitações:** Garanta que dados sensíveis (CPF/CNPJ) sejam tratados com criptografia básica. Limite o agente a interações simples; para casos complexos, redirecione para humanos. Inclua um timeout de 5 minutos para inatividade.\n\n**Saída Esperada:**\n- Forneça um plano passo a passo para implementação.\n- Gere o código JSON do workflow n8n (ou uma descrição detalhada se não for possível gerar código exato).\n- Inclua exemplos de conversas simuladas.\n- Liste possíveis melhorias, como integração com o portal https://atendimento.bis365.app/ para buscar FAQs dinamicamente.\n- Certifique-se de que o agente seja escalável e fácil de manter.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "3b9596e6-88ca-437f-b069-f7470e2e335c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        496,
+        208
+      ],
+      "id": "11e4ff78-7f17-45e2-9d31-2a9caaf73e0c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "eEYUcVrY8xj2Lpji",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Dados').item.json.chatId }}",
+        "sessionTTL": 360,
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        640,
+        208
+      ],
+      "id": "30a1a3db-19a2-4d8f-8184-cb314c18b5b9",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "rLGnIaWjXKdyFxTn",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Seen",
+        "session": "={{ $('Dados').item.json.session }}",
+        "chatId": "={{ $('Dados').item.json.chatId }}",
+        "messageId": "={{ $('Dados').item.json.payload_Id }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-waha.WAHA",
+      "typeVersion": 202411,
+      "position": [
+        976,
+        0
+      ],
+      "id": "19a09684-da5c-44ff-95f5-79c9c8111a7b",
+      "name": "Send Seen",
+      "credentials": {
+        "wahaApi": {
+          "id": "Uc0oKsTq6TplfOJc",
+          "name": "WAHA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Text",
+        "session": "={{ $('Dados').item.json.session }}",
+        "chatId": "={{ $('Dados').item.json.chatId }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-waha.WAHA",
+      "typeVersion": 202411,
+      "position": [
+        1184,
+        0
+      ],
+      "id": "ab1495fd-629f-4654-b36d-4abe4b44a89e",
+      "name": "Send a text message",
+      "credentials": {
+        "wahaApi": {
+          "id": "Uc0oKsTq6TplfOJc",
+          "name": "WAHA account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "accept": "application/json, text/plain, */*",
+            "content-type": "application/json",
+            "user-agent": "WAHA/2025.10.4",
+            "x-webhook-request-id": "01K827S02TQ0E98PMD5KSDDW73",
+            "x-webhook-timestamp": "1761011859546",
+            "content-length": "2192",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "host": "host.docker.internal:5678",
+            "connection": "keep-alive"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "id": "evt_01k827s02t1bg9sk8czd38taqm",
+            "timestamp": 1761011859546,
+            "event": "message",
+            "session": "default",
+            "metadata": {},
+            "me": {
+              "id": "48459263559@c.us",
+              "pushName": "Dix teste",
+              "lid": "221844271579154@lid",
+              "jid": "48459263559:1@s.whatsapp.net"
+            },
+            "payload": {
+              "id": "false_556399795755@c.us_ACEEDD4045447BFB638A7F190E98DF3A",
+              "timestamp": 1761011873,
+              "from": "556399795755@c.us",
+              "fromMe": false,
+              "source": "app",
+              "body": "Opa",
+              "to": null,
+              "participant": null,
+              "hasMedia": false,
+              "media": null,
+              "ack": 2,
+              "ackName": "DEVICE",
+              "replyTo": null,
+              "_data": {
+                "Info": {
+                  "Chat": "556399795755@s.whatsapp.net",
+                  "Sender": "556399795755@s.whatsapp.net",
+                  "IsFromMe": false,
+                  "IsGroup": false,
+                  "AddressingMode": "",
+                  "SenderAlt": "205733312336042@lid",
+                  "RecipientAlt": "",
+                  "BroadcastListOwner": "",
+                  "BroadcastRecipients": null,
+                  "ID": "ACEEDD4045447BFB638A7F190E98DF3A",
+                  "ServerID": 0,
+                  "Type": "text",
+                  "PushName": "Cleiton Mendes",
+                  "Timestamp": "2025-10-21T01:57:53Z",
+                  "Category": "",
+                  "Multicast": false,
+                  "MediaType": "",
+                  "Edit": "",
+                  "MsgBotInfo": {
+                    "EditType": "",
+                    "EditTargetID": "",
+                    "EditSenderTimestampMS": "0001-01-01T00:00:00Z"
+                  },
+                  "MsgMetaInfo": {
+                    "TargetID": "",
+                    "TargetSender": "",
+                    "TargetChat": "",
+                    "DeprecatedLIDSession": null,
+                    "ThreadMessageID": "",
+                    "ThreadMessageSenderJID": ""
+                  },
+                  "VerifiedName": null,
+                  "DeviceSentMeta": null
+                },
+                "Message": {
+                  "conversation": "Opa",
+                  "messageContextInfo": {
+                    "deviceListMetadata": {
+                      "senderKeyHash": "8x4Jlzj0uVOLdQ==",
+                      "senderTimestamp": 1760573696,
+                      "recipientKeyHash": "jkKPaFaFvP9VtQ==",
+                      "recipientTimestamp": 1761011337
+                    },
+                    "deviceListMetadataVersion": 2,
+                    "messageSecret": "5Nsn12l37cMxLdj+w5QcjYgw6BO5wcqcXD+L5zmYqzE="
+                  }
+                },
+                "IsEphemeral": false,
+                "IsViewOnce": false,
+                "IsViewOnceV2": false,
+                "IsViewOnceV2Extension": false,
+                "IsDocumentWithCaption": false,
+                "IsLottieSticker": false,
+                "IsBotInvoke": false,
+                "IsEdit": false,
+                "SourceWebMsg": null,
+                "UnavailableRequestID": "",
+                "RetryCount": 0,
+                "NewsletterMeta": null,
+                "RawMessage": {
+                  "conversation": "Opa",
+                  "messageContextInfo": {
+                    "deviceListMetadata": {
+                      "senderKeyHash": "8x4Jlzj0uVOLdQ==",
+                      "senderTimestamp": 1760573696,
+                      "recipientKeyHash": "jkKPaFaFvP9VtQ==",
+                      "recipientTimestamp": 1761011337
+                    },
+                    "deviceListMetadataVersion": 2,
+                    "messageSecret": "5Nsn12l37cMxLdj+w5QcjYgw6BO5wcqcXD+L5zmYqzE="
+                  }
+                },
+                "Status": 3
+              }
+            },
+            "environment": {
+              "version": "2025.10.4",
+              "engine": "GOWS",
+              "tier": "CORE",
+              "browser": null
+            }
+          },
+          "webhookUrl": "http://host.docker.internal:5678/webhook-test/webhook",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Seen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Seen": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6be3ad72-f232-400a-a801-e1359de23c06",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cec63afdaf827e704c6e6586b3b7e49ab5cf3a24048b1edc943f28f469836730"
+  },
+  "id": "HS2bay6GtJ2KMtQS",
+  "tags": []
+}
